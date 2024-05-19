@@ -12,7 +12,7 @@ namespace SampleMvcApp.Controllers
 {
     public class AccountController : Controller
     {
-        public async Task Login(string returnUrl = "/")
+        public async Task Login(string returnUrl = "https://auth.snowmeet.top/")
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
                 .WithRedirectUri(returnUrl)
