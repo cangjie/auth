@@ -12,7 +12,7 @@ namespace SampleMvcApp.Controllers
 {
     public class AccountController : Controller
     {
-        public async Task Login(string returnUrl = "https://dev-c5ib8cmqu6p661tu.us.auth0.com/Callback")
+        public async Task Login(string returnUrl = "/")
         {
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
                 .WithRedirectUri(returnUrl)

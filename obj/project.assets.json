@@ -820,11 +820,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/cangjie/Downloads/quickstart/sample/SampleMvcApp.csproj",
+      "projectUniqueName": "/Users/cangjie/source/snowmeet/auth/SampleMvcApp.csproj",
       "projectName": "SampleMvcApp",
-      "projectPath": "/Users/cangjie/Downloads/quickstart/sample/SampleMvcApp.csproj",
+      "projectPath": "/Users/cangjie/source/snowmeet/auth/SampleMvcApp.csproj",
       "packagesPath": "/Users/cangjie/.nuget/packages/",
-      "outputPath": "/Users/cangjie/Downloads/quickstart/sample/obj/",
+      "outputPath": "/Users/cangjie/source/snowmeet/auth/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/cangjie/.nuget/NuGet/NuGet.Config"

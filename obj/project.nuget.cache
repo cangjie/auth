@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ss3EHiHjBk8kTYm3aEvWDqWxZZ5BaWyJLa6pPcCV8mvKdl7m7pZqumpkvZlKGmTN7FAjCC99k8wILxlghPEhJA==",
+  "dgSpecHash": "aFyHU781hIsM4Lihi8k8g/y0rIoThltRZDKlmM3I1a7k/BPUOPly7tMlKi7vxIxV19xPz3iQgltlpNkwHoQyjQ==",
   "success": true,
-  "projectFilePath": "/Users/cangjie/Downloads/quickstart/sample/SampleMvcApp.csproj",
+  "projectFilePath": "/Users/cangjie/source/snowmeet/auth/SampleMvcApp.csproj",
   "expectedPackageFiles": [
     "/Users/cangjie/.nuget/packages/auth0.aspnetcore.authentication/1.4.1/auth0.aspnetcore.authentication.1.4.1.nupkg.sha512",
     "/Users/cangjie/.nuget/packages/microsoft.aspnetcore.authentication.openidconnect/6.0.26/microsoft.aspnetcore.authentication.openidconnect.6.0.26.nupkg.sha512",
