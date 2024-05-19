@@ -1,0 +1,10 @@
+bin/
+obj/
+*.dll
+republish.sh
+*.so
+SampleMvcApp.runtimeconfig.json
+SampleMvcApp
+SampleMvcApp.deps.json
+SampleMvcApp.pdb
+createdump
