@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
 using System.Text;
 using JWT;
 using JWT.Algorithms;
@@ -11,6 +12,7 @@ using JWT.Serializers;
 using System.Collections.Generic;
 //using JWT.Builder;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 
 namespace SampleMvcApp.Controllers
 {
@@ -40,13 +42,25 @@ namespace SampleMvcApp.Controllers
 
             //var payloadBytes = GetBytes(_jsonSerializer.Serialize(payload));
 
-            IJwtAlgorithm algorithm = new RS256Algorithm((new X509Certificate2(Environment.CurrentDirectory + "/cert.crt")).GetRSAPrivateKey()) ;
-
+            string publicKeyStr = System.IO.File.OpenText(Environment.CurrentDirectory + "/rsa_public.key").ReadToEnd()
+                .Replace("-----BEGIN PUBLIC KEY-----", "").Replace("-----END PUBLIC KEY-----", "").Trim();
+            byte[] publicKey = Convert.FromBase64String(publicKeyStr);
+            string privateKeyStr = System.IO.File.OpenText(Environment.CurrentDirectory + "/private.key").ReadToEnd()
+                .Replace("-----BEGIN PRIVATE KEY-----", "").Replace("-----END PRIVATE KEY-----", "").Trim();
+            byte[] privateKey = Convert.FromBase64String(privateKeyStr);
+            RSA rsaPrivateKey = RSA.Create();
+            //rsa.pub(publicKey, out _);
+            rsaPrivateKey.ImportPkcs8PrivateKey(privateKey, out _);
+            publicKey = rsaPrivateKey.ExportRSAPublicKey();
+            RSA rsaPublicKey = RSA.Create();
+            rsaPublicKey.ImportRSAPublicKey(publicKey, out _);
+            IJwtAlgorithm algorithm = new RS256Algorithm(rsaPublicKey, rsaPrivateKey);
+            
 
 
             IJsonSerializer serializer = new JsonNetSerializer();
 
-            byte[] payloadBytes = System.Text.Encoding.UTF8.GetBytes(serializer.Serialize(payload));
+            //byte[] payloadBytes = System.Text.Encoding.UTF8.GetBytes(serializer.Serialize(payload));
 
             
             
