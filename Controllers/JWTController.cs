@@ -15,6 +15,9 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.RegularExpressions;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Encodings.Web;
 
 namespace SampleMvcApp.Controllers
 {
@@ -24,14 +27,63 @@ namespace SampleMvcApp.Controllers
 	{
 		public const string plainTextSecurityKey = "test key";
 
-        public object _jwt;
+        
 
         public JWTController()
 		{
            
 		}
 
-		[HttpGet]
+        [HttpGet]
+        public ActionResult<string> Encode(string json, int expireMinute = 0)
+        {
+            IDateTimeProvider provider = new UtcDateTimeProvider();
+            IJsonSerializer serializer = new JsonNetSerializer();
+            var payload = serializer.Deserialize<Dictionary<string, object>>(json);
+            if (expireMinute > 0)
+            {
+                var now = provider.GetNow().AddMinutes(expireMinute);
+                double secondsSinceEpoch = UnixEpoch.GetSecondsSince(now);
+                payload.Add("exp", secondsSinceEpoch);
+            }
+            string privateKeyStr = System.IO.File.OpenText(Environment.CurrentDirectory + "/private.key").ReadToEnd()
+                .Replace("-----BEGIN PRIVATE KEY-----", "").Replace("-----END PRIVATE KEY-----", "").Trim();
+            byte[] privateKey = Convert.FromBase64String(privateKeyStr);
+            RSA rsaPrivateKey = RSA.Create();
+            //rsa.pub(publicKey, out _);
+            rsaPrivateKey.ImportPkcs8PrivateKey(privateKey, out _);
+            IJwtAlgorithm algorithm = new RS256Algorithm(RSA.Create(), rsaPrivateKey);
+            IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
+            IJwtEncoder encoder = new JwtEncoder(algorithm, serializer, urlEncoder);
+            //byte[] keybArr = System.Text.Encoding.UTF8.GetBytes(key);
+            const string key = null;
+            var token = encoder.Encode(payload, key);
+            return Ok(token.ToString().Trim());
+        }
+
+
+        [HttpGet]
+        public ActionResult<string> Decode(string token)
+        {
+            IJsonSerializer serializer = new JsonNetSerializer();
+            string privateKeyStr = System.IO.File.OpenText(Environment.CurrentDirectory + "/private.key").ReadToEnd()
+                .Replace("-----BEGIN PRIVATE KEY-----", "").Replace("-----END PRIVATE KEY-----", "").Trim();
+            byte[] privateKey = Convert.FromBase64String(privateKeyStr);
+            RSA rsaPrivateKey = RSA.Create();
+            //rsa.pub(publicKey, out _);
+            rsaPrivateKey.ImportPkcs8PrivateKey(privateKey, out _);
+            RSA rsaPublicKey = RSA.Create();
+            rsaPublicKey.ImportRSAPublicKey(rsaPrivateKey.ExportRSAPublicKey(), out _);
+            IDateTimeProvider provider = new UtcDateTimeProvider();
+            IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
+            IJwtValidator validator = new JwtValidator(serializer, provider);
+            IJwtAlgorithm algorithm = new RS256Algorithm(rsaPublicKey, rsaPrivateKey);
+            IJwtDecoder decoder = new JwtDecoder(serializer, validator, urlEncoder, algorithm);
+            var json = decoder.Decode(token);
+            return Ok(json.ToString());
+        }
+
+        [NonAction]
 		public void Test()
 		{
 
