@@ -9,10 +9,12 @@ using System.Text;
 using JWT;
 using JWT.Algorithms;
 using JWT.Serializers;
+using JWT.Extensions.AspNetCore;
 using System.Collections.Generic;
 //using JWT.Builder;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SampleMvcApp.Controllers
 {
@@ -22,24 +24,31 @@ namespace SampleMvcApp.Controllers
 	{
 		public const string plainTextSecurityKey = "test key";
 
-		public JWTController()
+        public object _jwt;
+
+        public JWTController()
 		{
+           
 		}
 
 		[HttpGet]
 		public void Test()
 		{
 
-
+            IDateTimeProvider provider = new UtcDateTimeProvider();
+            var now = provider.GetNow().AddMinutes(5);
+            double secondsSinceEpoch = UnixEpoch.GetSecondsSince(now);
 
             //X509Certificate  cert = X509Certificate2.CreateFromCertFile(Environment.CurrentDirectory + "/certificate.crt");
 
             var payload = new Dictionary<string, object>
             {
                 { "claim1", 0 },
-                { "claim2", "claim2-value" }
+                { "claim2", "claim2-value" },
+                { "exp", secondsSinceEpoch}
             };
 
+            
             //var payloadBytes = GetBytes(_jsonSerializer.Serialize(payload));
 
             string publicKeyStr = System.IO.File.OpenText(Environment.CurrentDirectory + "/rsa_public.key").ReadToEnd()
@@ -74,8 +83,18 @@ namespace SampleMvcApp.Controllers
 
             Console.WriteLine(token);
             //Console.WriteLine(token);
+            //IJsonSerializer serializer = new JsonNetSerializer();
+            //IDateTimeProvider provider = new UtcDateTimeProvider();
+            IJwtValidator validator = new JwtValidator(serializer, provider);
+            //IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
+            
+            algorithm = new RS256Algorithm(rsaPublicKey, RSA.Create());
+            IJwtDecoder decoder = new JwtDecoder(serializer, validator, urlEncoder, algorithm);
 
-
+            var json = decoder.Decode(token);
+            Console.WriteLine(json);
+            JwtHeader header = decoder.DecodeHeader<JwtHeader>(token);
+            Console.WriteLine(header);
         }
 
         
